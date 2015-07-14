@@ -1,6 +1,4 @@
 import expect from 'expect'
-import sinon from 'sinon'
-
 import Router from '../src/Router'
 import WindowEnv from '../src/WindowEnv'
 
