@@ -16,15 +16,14 @@
  * @param {Function} nextFn
  */
 
-import pathToRegex from 'path-to-regex'
-import Context from 'Context'
-import fns from 'fns'
 import assign from 'object-assign'
+import Context from './Context'
+import fns from './fns'
 import WindowEnv from './WindowEnv'
 import HistoryEnv from './HistoryEnv'
 import DocumentEnv from './DocumentEnv'
 
-exports defualt class Router {
+export default class Router {
   constructor(opts) {
     this.opts = assign({
       pushstate: true,

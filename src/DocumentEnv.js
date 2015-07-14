@@ -1,3 +1,7 @@
-export function getTitle() {
+function getTitle() {
   return document.title
+}
+
+export default {
+  getTitle
 }

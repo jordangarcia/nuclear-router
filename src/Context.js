@@ -33,7 +33,7 @@ export default class Context {
       : this.canonicalPath
 
     return [
-      state
+      state,
       this.title,
       url,
     ]

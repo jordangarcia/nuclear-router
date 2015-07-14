@@ -2,9 +2,10 @@
   "name": "nuclear-router",
   "version": "0.0.1",
   "description": "NuclearJS Router",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./scripts/build",
+    "test": "./scripts/test",
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,12 @@
   "homepage": "https://github.com/jordangarcia/nuclear-router",
   "dependencies": {
     "path-to-regexp": "^1.2.0",
-    "object-assign": "^3.0.0"
+    "object-assign": "^3.0.0",
+    "expect": "^1.6.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "babel": "^5.6.14",
+    "sinon": "^1.15.4"
   }
 }

@@ -1,7 +1,12 @@
-export function addEventListener() {
+function addEventListener() {
   window.addEventListener.apply(window, arguments)
 }
 
-export function removeEventListener() {
+function removeEventListener() {
   window.removeEventListener.apply(window, arguments)
+}
+
+export default {
+  addEventListener,
+  removeEventListener,
 }
