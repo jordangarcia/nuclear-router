@@ -1,8 +1,23 @@
 import expect from 'expect'
 import Router from '../src/Router'
 import WindowEnv from '../src/WindowEnv'
+import HistoryEnv from '../src/HistoryEnv'
+import DocumentEnv from '../src/DocumentEnv'
 
 describe('Router', () => {
+  const pageTitle = 'PAGE TITLE'
+
+  beforeEach(() => {
+    sinon.stub(HistoryEnv, 'pushState')
+    sinon.stub(HistoryEnv, 'replaceState')
+    sinon.stub(DocumentEnv, 'getTitle').returns(pageTitle)
+  })
+
+  afterEach(() => {
+    HistoryEnv.pushState.restore()
+    HistoryEnv.replaceState.restore()
+    DocumentEnv.getTitle.restore()
+  })
 
   describe('construction', () => {
     beforeEach(() => {
@@ -16,6 +31,65 @@ describe('Router', () => {
     it('should create a Router instance', () => {
       let router = new Router
       expect(router instanceof Router).toBe(true)
+    })
+  })
+
+  describe('navigation', () => {
+    let router
+    let spy1, spy2, spy3
+
+    beforeEach(() => {
+      router = new Router()
+
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+      spy3 = sinon.spy()
+
+      router.registerRoutes([
+        {
+          match: '/foo',
+          handlers: [
+            (ctx, next) => {
+              spy1(ctx)
+              next()
+            },
+            (ctx, next) => {
+              spy2(ctx)
+              next()
+            },
+          ],
+        },
+        {
+          match: '/bar/:id',
+          handlers: [
+            (ctx, next) => {
+              spy3(ctx)
+              next()
+            },
+          ],
+        },
+      ])
+
+      sinon.stub(WindowEnv, 'navigate')
+    })
+
+    afterEach(() => {
+      router.reset()
+      WindowEnv.navigate.restore()
+    })
+
+    it('should register routes and respond to Router#go', () => {
+      router.go('/foo')
+
+      sinon.assert.calledOnce(spy1)
+      sinon.assert.calledOnce(spy2)
+
+      var ctx = spy1.firstCall.args[0]
+
+      expect(ctx.title).toBe(pageTitle)
+      expect(ctx.params).toEqual({})
+      expect(ctx.canonicalPath).toBe('/foo')
+      expect(ctx.path).toBe('/foo')
     })
   })
 })

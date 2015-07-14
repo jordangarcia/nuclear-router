@@ -1,17 +1,18 @@
+
 /**
  * @param {RouterHandler[]} handlers
  * @param {Context} ctx
  */
-export function runHandlers(handlers, ctx, callback) {
+function runHandlers(handlers, ctx, callback) {
   let len = handlers.length
   let i = 0;
-  let fn = handlers[i]
 
   function next() {
+    let fn = handlers[i]
     if (i < len) {
-      let nextFn = (i === len - 1) ? next : () => {}
-      fn(ctx, nextFn)
+      let nextFn = (i < len - 1) ? next : () => {}
       i++
+      fn(ctx, nextFn)
     } else {
       callback()
     }
@@ -25,7 +26,7 @@ export function runHandlers(handlers, ctx, callback) {
  * @param {String} path
  * @return {String}
  */
-export function extractQueryString(path) {
+function extractQueryString(path) {
   let i = path.indexOf('?');
   let isFound = i > -1
 
@@ -36,7 +37,7 @@ export function extractQueryString(path) {
  * @param {String} path
  * @return {Object<String, String[]|String>}
  */
-export function extractQueryParams(path) {
+function extractQueryParams(path) {
   // TODO
 
 }
@@ -46,7 +47,7 @@ export function extractQueryParams(path) {
  * @param {String} canonicalPath
  * @return {String}
  */
-export function extractPath(base, canonicalPath) {
+function extractPath(base, canonicalPath) {
   let path = canonicalPath.replace(base, '') || '/'
   let qsIndex = path.indexOf('?')
   return (qsIndex > -1) ? path.slice(0, qsIndex) : path
@@ -57,7 +58,7 @@ export function extractPath(base, canonicalPath) {
  * @param {String} path
  * @return {{ route: Route, params: Object }}
  */
-export function matchRoute(routes, path) {
+function matchRoute(routes, path) {
   let result = {
     params: {},
     route: null,
@@ -99,4 +100,12 @@ function decodeURLEncodedURIComponent(val) {
     return val
   }
   return decodeURLComponents ? decodeURIComponent(val.replace(/\+/g, ' ')) : val
+}
+
+export default {
+  runHandlers,
+  extractQueryString,
+  extractQueryParams,
+  extractPath,
+  matchRoute,
 }

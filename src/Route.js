@@ -6,6 +6,6 @@ export default class Route {
     this.handlers = handlers
     this.keys = []
 
-    this.matchRegexp = pathtoRegexp(this.match, this.keys)
+    this.matchRegexp = pathToRegexp(this.match, this.keys)
   }
 }

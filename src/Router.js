@@ -19,6 +19,7 @@
 import assign from 'object-assign'
 import Context from './Context'
 import fns from './fns'
+import Route from './Route'
 import WindowEnv from './WindowEnv'
 import HistoryEnv from './HistoryEnv'
 import DocumentEnv from './DocumentEnv'
@@ -111,7 +112,7 @@ export default class Router {
    * @param {Context} ctx
    */
   catchall(ctx) {
-    this.windowNavigate(ctx.canonicalPath)
+    WindowEnv.navigate(ctx.canonicalPath)
   }
 
   /**

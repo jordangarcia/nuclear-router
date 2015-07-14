@@ -1,3 +1,5 @@
+import fns from './fns'
+
 export default class Context {
   /**
    * @param {Object} opts
@@ -28,7 +30,7 @@ export default class Context {
     let state = {
       canonicalPath: this.canonicalPath,
     }
-    let url = (hashbang && this.path !== '/')
+    let url = (this.useHashbang && this.path !== '/')
       ? '#!' + this.path
       : this.canonicalPath
 
