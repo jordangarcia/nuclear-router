@@ -60,7 +60,7 @@ describe('Router', () => {
           ],
         },
         {
-          match: '/bar/:id',
+          match: '/bar/:id/baz/:baz_id?',
           handlers: [
             (ctx, next) => {
               spy3(ctx)
@@ -83,6 +83,7 @@ describe('Router', () => {
 
       sinon.assert.calledOnce(spy1)
       sinon.assert.calledOnce(spy2)
+      sinon.assert.notCalled(spy3)
 
       var ctx = spy1.firstCall.args[0]
 
@@ -90,6 +91,22 @@ describe('Router', () => {
       expect(ctx.params).toEqual({})
       expect(ctx.canonicalPath).toBe('/foo')
       expect(ctx.path).toBe('/foo')
+    })
+
+    it('should properly parse params', () => {
+      router.go('/bar/123/baz')
+
+      sinon.assert.calledOnce(spy3)
+
+      var ctx = spy3.firstCall.args[0]
+
+      expect(ctx.title).toBe(pageTitle)
+      expect(ctx.params).toEqual({
+        id: '123',
+        baz_id: undefined
+      })
+      expect(ctx.canonicalPath).toBe('/bar/123/baz')
+      expect(ctx.path).toBe('/bar/123/baz')
     })
   })
 })

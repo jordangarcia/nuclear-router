@@ -74,7 +74,7 @@ function matchRoute(routes, path) {
 
       for (let i = 1; i < matches.length; ++i) {
         let key = route.keys[i - 1];
-        let val = decodeURLEncodedURIComponent(m[i]);
+        let val = decodeURLEncodedURIComponent(matches[i]);
         if (val !== undefined || !(hasOwnProperty.call(params, key.name))) {
           params[key.name] = val;
         }
@@ -99,7 +99,7 @@ function decodeURLEncodedURIComponent(val) {
   if (typeof val !== 'string') {
     return val
   }
-  return decodeURLComponents ? decodeURIComponent(val.replace(/\+/g, ' ')) : val
+  return decodeURIComponent(val.replace(/\+/g, ' '))
 }
 
 export default {
