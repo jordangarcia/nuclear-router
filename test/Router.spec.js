@@ -36,7 +36,8 @@ describe('Router', () => {
 
   describe('navigation', () => {
     let router
-    let spy1, spy2, spy3
+    let spy1, spy2, spy3, asyncSpy1, asyncSpy2
+    let deferred
 
     beforeEach(() => {
       router = new Router()
@@ -44,6 +45,13 @@ describe('Router', () => {
       spy1 = sinon.spy()
       spy2 = sinon.spy()
       spy3 = sinon.spy()
+
+      asyncSpy1 = sinon.spy()
+      asyncSpy2 = sinon.spy()
+
+      let asyncPromise = new Promise((resolve, reject) => {
+        deferred = { resolve, reject }
+      })
 
       router.registerRoutes([
         {
@@ -65,6 +73,22 @@ describe('Router', () => {
             (ctx, next) => {
               spy3(ctx)
               next()
+            },
+          ],
+        },
+        {
+          match: '/async',
+          handlers: [
+            (ctx, next) => {
+              asyncPromise.then(() => {
+                asyncSpy1()
+                next()
+              })
+            },
+
+            (ctx, next) => {
+              asyncSpy2()
+              done()
             },
           ],
         },
@@ -107,6 +131,21 @@ describe('Router', () => {
       })
       expect(ctx.canonicalPath).toBe('/bar/123/baz')
       expect(ctx.path).toBe('/bar/123/baz')
+    })
+
+    it('should be to block on async handlers', (done) => {
+      router.go('/async')
+
+      sinon.assert.notCalled(asyncSpy1)
+      sinon.assert.notCalled(asyncSpy2)
+
+      deferred.resolve()
+
+      setTimeout(function() {
+        sinon.assert.calledOnce(asyncSpy1)
+        sinon.assert.calledOnce(asyncSpy2)
+        done()
+      }, 0);
     })
   })
 })
