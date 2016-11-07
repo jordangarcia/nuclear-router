@@ -5,9 +5,9 @@ NuclearJS Router
 
 ### Router
 
-### new Router( reactor : Nuclear.Reactor )
+### new Router( opts : Object )
 
-Instatiates a new Router bound to a Nuclear Reactor
+Instatiates a new Router
 
 #### Router#go( location : String ) : void
 
@@ -21,14 +21,19 @@ Instatiates a new Router bound to a Nuclear Reactor
 
 #### Router#windowNavigate( location : String )
 
-#### Router#onBeforeGo( handler : Function )
-
 ### Type: Route
 
 #### match : String|RegExp
 
 #### handle : Function[]
 
+
+## TODO
+
+- Add `opts.onRouteStart` and `opts.onRouteComplete` to do things like performance benchmarking
+- Deprecate the `hashbang` use cases - we dont need this and it adds complexity
+- Deprecate the `basepath` option and just assume the basepath is `/`
+- Add no-op functionality to `next()` calls that happen async after `Router.go` is called again
 
 
 Causes a real page navigation by using `window.location`
