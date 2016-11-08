@@ -1,27 +1,3 @@
-
-/**
- * @param {RouterHandler[]} handlers
- * @param {Context} ctx
- */
-function runHandlers(handlers, ctx, callback) {
-  let len = handlers.length
-  let i = 0;
-
-  function next() {
-    let fn = handlers[i]
-    if (i < len) {
-      let nextFn = (i < len - 1) ? next : () => {}
-      i++
-      fn(ctx, nextFn)
-    } else {
-      callback()
-    }
-  }
-
-  next()
-}
-
-
 /**
  * @param {String} path
  * @return {String}
@@ -103,7 +79,6 @@ function decodeURLEncodedURIComponent(val) {
 }
 
 export default {
-  runHandlers,
   extractQueryString,
   extractQueryParams,
   extractPath,

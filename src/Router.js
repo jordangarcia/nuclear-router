@@ -29,8 +29,6 @@ export default class Router {
     this.opts = assign({
       pushstate: true,
       base: '',
-      // NOT IMPLEMENTED
-      // hashbang: false,
     }, opts)
 
     this.__routes = []
@@ -93,14 +91,14 @@ export default class Router {
    * @param {String} canonicalPath
    */
   go(canonicalPath) {
-    this.__dispatch(canonicalPath, true)
+    this.__dispatch(canonicalPath, false)
   }
 
   /**
    * @param {String} canonicalPath
    */
   replace(canonicalPath) {
-    this.__dispatch(canonicalPath, false)
+    this.__dispatch(canonicalPath, true)
   }
 
   reset() {
@@ -115,6 +113,27 @@ export default class Router {
     WindowEnv.navigate(ctx.canonicalPath)
   }
 
+
+  /**
+   * @param {RouterHandler[]} handlers
+   * @param {Context} ctx
+   */
+  __runHandlers(handlers, ctx, callback) {
+    let len = handlers.length
+    let i = 0;
+
+    let next = () => {
+      if (this.__currentCanonicalPath !== ctx.canonicalPath) {
+        return;
+      }
+      let fn = handlers[i]
+      i++
+      fn(ctx, next)
+    }
+
+    next()
+  }
+
   /**
    * @param {String} canonicalPath
    * @param {Boolean} replace use replaceState instead of pushState
@@ -123,12 +142,11 @@ export default class Router {
     if (canonicalPath === this.__currentCanonicalPath) {
       return
     }
-    // TODO Hashbang support
+
     let title = DocumentEnv.getTitle()
     let path = fns.extractPath(this.opts.base, canonicalPath)
     let { params, route } = fns.matchRoute(this.__routes, path)
 
-    // TODO pass useHashbang to Context constructor
     let ctx = new Context({ canonicalPath, path, title, params })
 
     if (route) {
@@ -138,7 +156,7 @@ export default class Router {
 
       this.__currentCanonicalPath = canonicalPath
 
-      fns.runHandlers(route.handlers, ctx)
+      this.__runHandlers(route.handlers, ctx)
     } else {
       this.catchAllHandler(ctx)
     }
