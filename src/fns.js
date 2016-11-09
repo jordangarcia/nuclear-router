@@ -14,8 +14,18 @@ function extractQueryString(path) {
  * @return {Object<String, String[]|String>}
  */
 function extractQueryParams(path) {
-  // TODO
+  let i = path.indexOf('?');
+  let params = {};
+  if (i === -1) {
+    return params;
+  }
 
+  path.slice(i + 1).split('&').forEach((queryString) => {
+    let query = queryString.split('=');
+    params[query[0]] = query[1];
+  })
+
+  return params;
 }
 
 /**
@@ -78,9 +88,17 @@ function decodeURLEncodedURIComponent(val) {
   return decodeURIComponent(val.replace(/\+/g, ' '))
 }
 
+function getNow() {
+  if (window.performance && window.performance.now) {
+    return window.performance.now();
+  }
+  return Date.now();
+}
+
 export default {
   extractQueryString,
   extractQueryParams,
   extractPath,
   matchRoute,
+  getNow,
 }

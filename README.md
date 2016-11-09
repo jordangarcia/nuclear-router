@@ -17,7 +17,7 @@ Instatiates a new Router
 
 #### Router#getLocation() : String
 
-#### Router#redirect( location : String )
+#### Router#replace( location : String )
 
 #### Router#windowNavigate( location : String )
 

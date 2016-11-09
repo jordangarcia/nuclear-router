@@ -15,8 +15,8 @@ export default class Context {
     this.params = params
 
     // computeds
-    this.queryString = fns.extractQueryString(path)
-    this.queryParams = fns.extractQueryParams(path)
+    this.queryString = fns.extractQueryString(canonicalPath)
+    this.queryParams = fns.extractQueryParams(canonicalPath)
   }
 
   /**

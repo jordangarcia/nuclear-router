@@ -33,30 +33,19 @@ export default class Router {
 
     this.__routes = []
 
+    this.__fromPath = null
+
     this.__currentCanonicalPath = null
 
-    WindowEnv.addEventListener('popstate', (() => {
-      var loaded = false
-      if (DocumentEnv.getReadyState() === 'complete') {
-        loaded = true
+    this.onRouteComplete = opts.onRouteComplete
+
+    WindowEnv.addEventListener('popstate', (e) => {
+      if (e.state) {
+        this.replace(e.state.canonicalPath)
       } else {
-        WindowEnv.addEventListener('load', () => {
-          setTimeout(() => {
-            loaded = true
-          }, 0)
-        })
+        this.go(this.__currentCanonicalPath)
       }
-      return (e) => {
-        if (!loaded) {
-          return
-        }
-        if (e.state) {
-          this.replace(e.state.canonicalPath)
-        } else {
-          this.go(this.getCanonicalPath())
-        }
-      }
-    }))
+    })
   }
 
   /**
@@ -83,8 +72,26 @@ export default class Router {
       throw new Error('Router#registerRoutes must be passed an array of Routes')
     }
     routes.map(route => {
-      this.__routes.push(new Route(route))
+      route = new Route(route);
+      if (this.onRouteComplete) {
+        route.handlers.push((ctx, next) => {
+          const duration = fns.getNow() - this.__startTime;
+          this.onRouteComplete({
+            fromPath: this.__fromPath,
+            toPath: this.__currentCanonicalPath,
+            duration,
+          })
+        });
+      }
+      this.__routes.push(route);
     })
+  }
+
+  /**
+   * @param {String} path
+   */
+  registerCatchallRoute(path) {
+    this.__catchallPath = path;
   }
 
   /**
@@ -105,12 +112,8 @@ export default class Router {
     this.__routes = []
   }
 
-  /**
-   * @param {String} canonicalPath
-   * @param {Context} ctx
-   */
-  catchall(ctx) {
-    WindowEnv.navigate(ctx.canonicalPath)
+  catchall() {
+    WindowEnv.navigate(this.__catchallPath)
   }
 
 
@@ -139,6 +142,7 @@ export default class Router {
    * @param {Boolean} replace use replaceState instead of pushState
    */
   __dispatch(canonicalPath, replace) {
+    this.__startTime = fns.getNow();
     if (canonicalPath === this.__currentCanonicalPath) {
       return
     }
@@ -154,11 +158,12 @@ export default class Router {
         ? HistoryEnv.replaceState.apply(null, ctx.getHistoryArgs())
         : HistoryEnv.pushState.apply(null, ctx.getHistoryArgs())
 
+      this.__fromPath = this.__currentCanonicalPath
       this.__currentCanonicalPath = canonicalPath
 
       this.__runHandlers(route.handlers, ctx)
     } else {
-      this.catchAllHandler(ctx)
+      this.catchall()
     }
   }
 }
