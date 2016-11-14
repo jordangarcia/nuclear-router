@@ -26,39 +26,24 @@ import DocumentEnv from './DocumentEnv'
 
 export default class Router {
   constructor(opts) {
+    this.opts = opts || {};
+
     this.opts = assign({
       pushstate: true,
       base: '',
-      // NOT IMPLEMENTED
-      // hashbang: false,
     }, opts)
 
     this.__routes = []
 
+    this.__fromPath = null
+
     this.__currentCanonicalPath = null
 
-    WindowEnv.addEventListener('popstate', (() => {
-      var loaded = false
-      if (DocumentEnv.getReadyState() === 'complete') {
-        loaded = true
-      } else {
-        WindowEnv.addEventListener('load', () => {
-          setTimeout(() => {
-            loaded = true
-          }, 0)
-        })
-      }
-      return (e) => {
-        if (!loaded) {
-          return
-        }
-        if (e.state) {
-          this.replace(e.state.canonicalPath)
-        } else {
-          this.go(this.getCanonicalPath())
-        }
-      }
-    }))
+    this.onRouteStart = this.opts.onRouteStart
+
+    this.onRouteComplete = this.opts.onRouteComplete
+
+    WindowEnv.addEventListener('popstate', this.__onpopstate)
   }
 
   /**
@@ -85,34 +70,82 @@ export default class Router {
       throw new Error('Router#registerRoutes must be passed an array of Routes')
     }
     routes.map(route => {
-      this.__routes.push(new Route(route))
+      route = new Route(route);
+      if (this.onRouteComplete) {
+        const handlerLength = route.handlers.length-1;
+        const lastHandler = route.handlers[handlerLength];
+        const routingEnd = (ctx, next) => {
+          lastHandler(ctx);
+          const duration = fns.getNow() - this.__startTime;
+          const fromPath = this.__fromPath || 'PAGE LOAD';
+          this.onRouteComplete({
+            fromPath,
+            toPath: this.__currentCanonicalPath,
+            duration,
+          })
+        };
+        route.handlers = route.handlers.slice(0, handlerLength).concat(routingEnd);
+      }
+      if (this.onRouteStart) {
+        route.handlers.unshift(this.onRouteStart);
+      }
+      this.__routes.push(route);
     })
+  }
+
+  /**
+   * @param {String} path
+   */
+  registerCatchallPath(path) {
+    this.__catchallPath = path;
   }
 
   /**
    * @param {String} canonicalPath
    */
   go(canonicalPath) {
-    this.__dispatch(canonicalPath, true)
+    this.__dispatch(canonicalPath, false)
   }
 
   /**
    * @param {String} canonicalPath
    */
   replace(canonicalPath) {
-    this.__dispatch(canonicalPath, false)
+    this.__dispatch(canonicalPath, true)
   }
 
   reset() {
-    this.__routes = []
+    this.__catchallPath = null;
+    this.__routes = [];
+    WindowEnv.removeEventListener('popstate', this.__onpopstate)
   }
 
+  catchall() {
+    WindowEnv.navigate(this.__catchallPath)
+  }
+
+
   /**
-   * @param {String} canonicalPath
+   * @param {RouterHandler[]} handlers
    * @param {Context} ctx
    */
-  catchall(ctx) {
-    WindowEnv.navigate(ctx.canonicalPath)
+  __runHandlers(handlers, ctx, callback) {
+    let len = handlers.length
+    let i = 0;
+
+    let next = () => {
+      if (this.__currentCanonicalPath !== ctx.canonicalPath) {
+        return;
+      }
+      let fn = handlers[i]
+      i++
+      if (i > len) {
+        return;
+      }
+      fn(ctx, next)
+    }
+
+    next()
   }
 
   /**
@@ -120,15 +153,15 @@ export default class Router {
    * @param {Boolean} replace use replaceState instead of pushState
    */
   __dispatch(canonicalPath, replace) {
+    this.__startTime = fns.getNow();
     if (canonicalPath === this.__currentCanonicalPath) {
       return
     }
-    // TODO Hashbang support
+
     let title = DocumentEnv.getTitle()
     let path = fns.extractPath(this.opts.base, canonicalPath)
     let { params, route } = fns.matchRoute(this.__routes, path)
 
-    // TODO pass useHashbang to Context constructor
     let ctx = new Context({ canonicalPath, path, title, params })
 
     if (route) {
@@ -136,11 +169,20 @@ export default class Router {
         ? HistoryEnv.replaceState.apply(null, ctx.getHistoryArgs())
         : HistoryEnv.pushState.apply(null, ctx.getHistoryArgs())
 
+      this.__fromPath = this.__currentCanonicalPath
       this.__currentCanonicalPath = canonicalPath
 
-      fns.runHandlers(route.handlers, ctx)
+      this.__runHandlers(route.handlers, ctx)
     } else {
-      this.catchAllHandler(ctx)
+      this.catchall()
+    }
+  }
+
+  __onpopstate(e) {
+    if (e.state) {
+      this.replace(e.state.canonicalPath)
+    } else {
+      this.go(this.__currentCanonicalPath)
     }
   }
 }
