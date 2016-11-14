@@ -39,6 +39,8 @@ export default class Router {
 
     this.__currentCanonicalPath = null
 
+    this.onRouteStart = this.opts.onRouteStart
+
     this.onRouteComplete = this.opts.onRouteComplete
 
     WindowEnv.addEventListener('popstate', this.__onpopstate)
