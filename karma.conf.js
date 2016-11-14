@@ -25,7 +25,7 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
-      'test/**/*.js': ['webpack']
+      'test/**/*.js': ['babel', 'webpack']
     },
 
     webpack: {

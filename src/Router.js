@@ -26,6 +26,8 @@ import DocumentEnv from './DocumentEnv'
 
 export default class Router {
   constructor(opts) {
+    this.opts = opts || {};
+
     this.opts = assign({
       pushstate: true,
       base: '',
@@ -37,15 +39,9 @@ export default class Router {
 
     this.__currentCanonicalPath = null
 
-    this.onRouteComplete = opts.onRouteComplete
+    this.onRouteComplete = this.opts.onRouteComplete
 
-    WindowEnv.addEventListener('popstate', (e) => {
-      if (e.state) {
-        this.replace(e.state.canonicalPath)
-      } else {
-        this.go(this.__currentCanonicalPath)
-      }
-    })
+    WindowEnv.addEventListener('popstate', this.__onpopstate)
   }
 
   /**
@@ -74,14 +70,22 @@ export default class Router {
     routes.map(route => {
       route = new Route(route);
       if (this.onRouteComplete) {
-        route.handlers.push((ctx, next) => {
+        const handlerLength = route.handlers.length-1;
+        const lastHandler = route.handlers[handlerLength];
+        const routingEnd = (ctx, next) => {
+          lastHandler(ctx);
           const duration = fns.getNow() - this.__startTime;
+          const fromPath = this.__fromPath || 'PAGE LOAD';
           this.onRouteComplete({
-            fromPath: this.__fromPath,
+            fromPath,
             toPath: this.__currentCanonicalPath,
             duration,
           })
-        });
+        };
+        route.handlers = route.handlers.slice(0, handlerLength).concat(routingEnd);
+      }
+      if (this.onRouteStart) {
+        route.handlers.unshift(this.onRouteStart);
       }
       this.__routes.push(route);
     })
@@ -90,7 +94,7 @@ export default class Router {
   /**
    * @param {String} path
    */
-  registerCatchallRoute(path) {
+  registerCatchallPath(path) {
     this.__catchallPath = path;
   }
 
@@ -109,7 +113,9 @@ export default class Router {
   }
 
   reset() {
-    this.__routes = []
+    this.__catchallPath = null;
+    this.__routes = [];
+    WindowEnv.removeEventListener('popstate', this.__onpopstate)
   }
 
   catchall() {
@@ -131,6 +137,9 @@ export default class Router {
       }
       let fn = handlers[i]
       i++
+      if (i > len) {
+        return;
+      }
       fn(ctx, next)
     }
 
@@ -164,6 +173,14 @@ export default class Router {
       this.__runHandlers(route.handlers, ctx)
     } else {
       this.catchall()
+    }
+  }
+
+  __onpopstate(e) {
+    if (e.state) {
+      this.replace(e.state.canonicalPath)
+    } else {
+      this.go(this.__currentCanonicalPath)
     }
   }
 }

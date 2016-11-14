@@ -56,7 +56,7 @@ describe('Router', () => {
       router.registerRoutes([
         {
           match: '/foo',
-          handlers: [
+          handle: [
             (ctx, next) => {
               spy1(ctx)
               next()
@@ -69,7 +69,7 @@ describe('Router', () => {
         },
         {
           match: '/bar/:id/baz/:baz_id?',
-          handlers: [
+          handle: [
             (ctx, next) => {
               spy3(ctx)
               next()
@@ -78,7 +78,7 @@ describe('Router', () => {
         },
         {
           match: '/async',
-          handlers: [
+          handle: [
             (ctx, next) => {
               asyncPromise.then(() => {
                 asyncSpy1()
