@@ -33,17 +33,23 @@ export default class Router {
       base: '',
     }, opts)
 
-    this.__routes = []
-
-    this.__fromPath = null
-
-    this.__currentCanonicalPath = null
+    this.setInitialState();
 
     this.onRouteStart = this.opts.onRouteStart
 
     this.onRouteComplete = this.opts.onRouteComplete
 
     WindowEnv.addEventListener('popstate', this.__onpopstate)
+  }
+
+  setInitialState() {
+    this.__fromPath = null;
+    this.__routes = [];
+    this.__currentCanonicalPath = null;
+    this.__catchallPath = null;
+    this.__dispatchId = 0;
+    this.onRouteStart = null;
+    this.onRouteComplete = null;
   }
 
   /**
@@ -69,13 +75,10 @@ export default class Router {
     if (!Array.isArray(routes)) {
       throw new Error('Router#registerRoutes must be passed an array of Routes')
     }
-    routes.map(route => {
+    routes.forEach(route => {
       route = new Route(route);
       if (this.onRouteComplete) {
-        const handlerLength = route.handlers.length-1;
-        const lastHandler = route.handlers[handlerLength];
         const routingEnd = (ctx, next) => {
-          lastHandler(ctx);
           const duration = fns.getNow() - this.__startTime;
           const fromPath = this.__fromPath || 'PAGE LOAD';
           this.onRouteComplete({
@@ -84,7 +87,7 @@ export default class Router {
             duration,
           })
         };
-        route.handlers = route.handlers.slice(0, handlerLength).concat(routingEnd);
+        route.handlers.push(routingEnd);
       }
       if (this.onRouteStart) {
         route.handlers.unshift(this.onRouteStart);
@@ -115,8 +118,7 @@ export default class Router {
   }
 
   reset() {
-    this.__catchallPath = null;
-    this.__routes = [];
+    this.setInitialState();
     WindowEnv.removeEventListener('popstate', this.__onpopstate)
   }
 
@@ -134,14 +136,11 @@ export default class Router {
     let i = 0;
 
     let next = () => {
-      if (this.__currentCanonicalPath !== ctx.canonicalPath) {
+      if (this.__dispatchId !== ctx.dispatchId || i > len) {
         return;
       }
       let fn = handlers[i]
       i++
-      if (i > len) {
-        return;
-      }
       fn(ctx, next)
     }
 
@@ -153,6 +152,7 @@ export default class Router {
    * @param {Boolean} replace use replaceState instead of pushState
    */
   __dispatch(canonicalPath, replace) {
+    this.__dispatchId++;
     this.__startTime = fns.getNow();
     if (canonicalPath === this.__currentCanonicalPath) {
       return
@@ -162,7 +162,7 @@ export default class Router {
     let path = fns.extractPath(this.opts.base, canonicalPath)
     let { params, route } = fns.matchRoute(this.__routes, path)
 
-    let ctx = new Context({ canonicalPath, path, title, params })
+    let ctx = new Context({ canonicalPath, path, title, params, dispatchId: this.__dispatchId })
 
     if (route) {
       (replace)

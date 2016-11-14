@@ -7,12 +7,14 @@ export default class Context {
    * @param {String} opts.canonicalPath
    * @param {String} opts.title
    * @param {Object} opts.params
+   * @param {Number} opts.dispatchId
    */
-  constructor({ path, canonicalPath, title, params}) {
+  constructor({ path, canonicalPath, title, params, dispatchId}) {
     this.path = path
     this.canonicalPath = canonicalPath
     this.title = title
     this.params = params
+    this.dispatchId = dispatchId
 
     // computeds
     this.queryString = fns.extractQueryString(canonicalPath)
