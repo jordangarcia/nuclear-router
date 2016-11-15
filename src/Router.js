@@ -48,6 +48,7 @@ export default class Router {
     this.__currentCanonicalPath = null;
     this.__catchallPath = null;
     this.__dispatchId = 0;
+    this.__startTime = null;
     this.onRouteStart = null;
     this.onRouteComplete = null;
   }
