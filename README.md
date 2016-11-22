@@ -13,13 +13,15 @@ Instatiates a new Router
 
 #### Router#registerRoutes( routes : Route[] ) : void
 
-#### Router#registerCatchallRoute( routes : Route[] ) : void
+#### Router#registerCatchallPath( path : String ) : void
 
 #### Router#getLocation() : String
 
-#### Router#redirect( location : String )
+#### Router#replace( location : String )
 
 #### Router#windowNavigate( location : String )
+
+#### Router#reset()
 
 ### Type: Route
 
