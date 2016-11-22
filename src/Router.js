@@ -140,7 +140,7 @@ export default class Router {
       if (this.__dispatchId !== ctx.dispatchId || i > len) {
         return;
       }
-      let fn = handlers[i]
+      let fn = handlers[i] || () => {}
       i++
       fn(ctx, next)
     }
@@ -169,7 +169,6 @@ export default class Router {
       (replace)
         ? HistoryEnv.replaceState.apply(null, ctx.getHistoryArgs())
         : HistoryEnv.pushState.apply(null, ctx.getHistoryArgs())
-
       this.__fromPath = this.__currentCanonicalPath
       this.__currentCanonicalPath = canonicalPath
 
