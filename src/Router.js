@@ -155,9 +155,6 @@ export default class Router {
   __dispatch(canonicalPath, replace) {
     this.__dispatchId++;
     this.__startTime = fns.getNow();
-    if (canonicalPath === this.__currentCanonicalPath) {
-      return
-    }
 
     let title = DocumentEnv.getTitle()
     let path = fns.extractPath(this.opts.base, canonicalPath)
