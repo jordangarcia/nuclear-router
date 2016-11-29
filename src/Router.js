@@ -39,7 +39,7 @@ export default class Router {
 
     this.onRouteComplete = this.opts.onRouteComplete
 
-    WindowEnv.addEventListener('popstate', this.__onpopstate)
+    WindowEnv.addEventListener('popstate', this.__onpopstate.bind(this))
   }
 
   setInitialState() {
