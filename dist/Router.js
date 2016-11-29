@@ -73,7 +73,7 @@ var Router = (function () {
 
     this.onRouteComplete = this.opts.onRouteComplete;
 
-    _WindowEnv2['default'].addEventListener('popstate', this.__onpopstate);
+    _WindowEnv2['default'].addEventListener('popstate', this.__onpopstate.bind(this));
   }
 
   _createClass(Router, [{
@@ -208,9 +208,6 @@ var Router = (function () {
     value: function __dispatch(canonicalPath, replace) {
       this.__dispatchId++;
       this.__startTime = _fns2['default'].getNow();
-      if (canonicalPath === this.__currentCanonicalPath) {
-        return;
-      }
 
       var title = _DocumentEnv2['default'].getTitle();
       var path = _fns2['default'].extractPath(this.opts.base, canonicalPath);

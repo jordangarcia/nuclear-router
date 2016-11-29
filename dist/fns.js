@@ -72,6 +72,7 @@ function matchRoute(routes, path) {
       }
 
       result = { route: route, params: params };
+      break;
     }
   }
 
