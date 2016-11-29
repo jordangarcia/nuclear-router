@@ -177,7 +177,7 @@ export default class Router {
 
   __onpopstate(e) {
     if (e.state) {
-      this.replace(e.state.canonicalPath)
+      this.replace(e.state.path)
     }
   }
 }

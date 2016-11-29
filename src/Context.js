@@ -27,7 +27,7 @@ export default class Context {
    */
   getHistoryArgs() {
     let state = {
-      canonicalPath: this.canonicalPath,
+      path: this.canonicalPath,
     }
     let url = this.canonicalPath
 
