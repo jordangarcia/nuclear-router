@@ -53,7 +53,7 @@ var Context = (function () {
     key: 'getHistoryArgs',
     value: function getHistoryArgs() {
       var state = {
-        canonicalPath: this.canonicalPath
+        path: this.canonicalPath
       };
       var url = this.canonicalPath;
 
