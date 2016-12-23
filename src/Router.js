@@ -35,8 +35,6 @@ export default class Router {
 
     this.setInitialState();
 
-    this.onRouteStart = this.opts.onRouteStart
-
     this.onRouteComplete = this.opts.onRouteComplete
 
     WindowEnv.addEventListener('popstate', this.__onpopstate.bind(this))
@@ -49,8 +47,6 @@ export default class Router {
     this.__catchallPath = null;
     this.__dispatchId = 0;
     this.__startTime = null;
-    this.onRouteStart = null;
-    this.onRouteComplete = null;
   }
 
   /**
@@ -77,23 +73,7 @@ export default class Router {
       throw new Error('Router#registerRoutes must be passed an array of Routes')
     }
     routes.forEach(route => {
-      route = new Route(route);
-      if (this.onRouteComplete) {
-        const routingEnd = (ctx, next) => {
-          const duration = fns.getNow() - this.__startTime;
-          const fromPath = this.__fromPath || 'PAGE LOAD';
-          this.onRouteComplete({
-            fromPath,
-            toPath: this.__currentCanonicalPath,
-            duration,
-          })
-        };
-        route.handlers.push(routingEnd);
-      }
-      if (this.onRouteStart) {
-        route.handlers.unshift(this.onRouteStart);
-      }
-      this.__routes.push(route);
+      this.__routes.push(new Route(route));
     })
   }
 
@@ -108,14 +88,14 @@ export default class Router {
    * @param {String} canonicalPath
    */
   go(canonicalPath) {
-    this.__dispatch(canonicalPath, false)
+    this.__dispatch(canonicalPath, 'push')
   }
 
   /**
    * @param {String} canonicalPath
    */
   replace(canonicalPath) {
-    this.__dispatch(canonicalPath, true)
+    this.__dispatch(canonicalPath, 'replace')
   }
 
   reset() {
@@ -133,16 +113,23 @@ export default class Router {
    * @param {Context} ctx
    */
   __runHandlers(handlers, ctx, callback) {
-    let len = handlers.length
     let i = 0;
 
     let next = () => {
-      if (this.__dispatchId !== ctx.dispatchId || i > len) {
+      if (this.__dispatchId !== ctx.dispatchId) {
         return;
       }
-      let fn = handlers[i] || () => {}
+      let fn = handlers[i]
       i++
-      fn(ctx, next)
+      // capture i in closure to not fuck
+      var j = i;
+
+      if (fn) {
+        fn(ctx, next)
+        if (callback && j === handlers.length && this.__dispatchId === ctx.dispatchId) {
+          callback();
+        }
+      }
     }
 
     next()
@@ -152,9 +139,11 @@ export default class Router {
    * @param {String} canonicalPath
    * @param {Boolean} replace use replaceState instead of pushState
    */
-  __dispatch(canonicalPath, replace) {
+  __dispatch(canonicalPath, mode = 'push') {
     this.__dispatchId++;
-    this.__startTime = fns.getNow();
+    if (mode !== 'replace') {
+      this.__startTime = fns.getNow();
+    }
 
     let title = DocumentEnv.getTitle()
     let path = fns.extractPath(this.opts.base, canonicalPath)
@@ -163,13 +152,33 @@ export default class Router {
     let ctx = new Context({ canonicalPath, path, title, params, dispatchId: this.__dispatchId })
 
     if (route) {
-      (replace)
-        ? HistoryEnv.replaceState.apply(null, ctx.getHistoryArgs())
-        : HistoryEnv.pushState.apply(null, ctx.getHistoryArgs())
-      this.__fromPath = this.__currentCanonicalPath
+      if (mode === 'replace') {
+        HistoryEnv.replaceState.apply(null, ctx.getHistoryArgs())
+      } else if (mode === 'push') {
+        HistoryEnv.pushState.apply(null, ctx.getHistoryArgs())
+      }
+
       this.__currentCanonicalPath = canonicalPath
 
-      this.__runHandlers(route.handlers, ctx)
+      this.__runHandlers(route.handlers, ctx, () => {
+        const startTime = this.__startTime;
+        const endTime = fns.getNow();
+        const duration = endTime - startTime;
+        const fromPath = this.__fromPath || 'PAGE LOAD';
+        const toPath = canonicalPath;
+
+        if (this.onRouteComplete) {
+          this.onRouteComplete({
+            fromPath,
+            toPath,
+            duration,
+            startTime,
+            endTime,
+          });
+        }
+
+        this.__fromPath = canonicalPath;
+      })
     } else {
       this.catchall()
     }
@@ -177,7 +186,8 @@ export default class Router {
 
   __onpopstate(e) {
     if (e.state) {
-      this.replace(e.state.path)
+      this.__dispatch(e.state.path, 'pop');
     }
   }
 }
+

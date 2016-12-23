@@ -69,8 +69,6 @@ var Router = (function () {
 
     this.setInitialState();
 
-    this.onRouteStart = this.opts.onRouteStart;
-
     this.onRouteComplete = this.opts.onRouteComplete;
 
     _WindowEnv2['default'].addEventListener('popstate', this.__onpopstate.bind(this));
@@ -85,8 +83,6 @@ var Router = (function () {
       this.__catchallPath = null;
       this.__dispatchId = 0;
       this.__startTime = null;
-      this.onRouteStart = null;
-      this.onRouteComplete = null;
     }
 
     /**
@@ -117,23 +113,7 @@ var Router = (function () {
         throw new Error('Router#registerRoutes must be passed an array of Routes');
       }
       routes.forEach(function (route) {
-        route = new _Route2['default'](route);
-        if (_this.onRouteComplete) {
-          var routingEnd = function routingEnd(ctx, next) {
-            var duration = _fns2['default'].getNow() - _this.__startTime;
-            var fromPath = _this.__fromPath || 'PAGE LOAD';
-            _this.onRouteComplete({
-              fromPath: fromPath,
-              toPath: _this.__currentCanonicalPath,
-              duration: duration
-            });
-          };
-          route.handlers.push(routingEnd);
-        }
-        if (_this.onRouteStart) {
-          route.handlers.unshift(_this.onRouteStart);
-        }
-        _this.__routes.push(route);
+        _this.__routes.push(new _Route2['default'](route));
       });
     }
 
@@ -152,7 +132,7 @@ var Router = (function () {
   }, {
     key: 'go',
     value: function go(canonicalPath) {
-      this.__dispatch(canonicalPath, false);
+      this.__dispatch(canonicalPath, 'push');
     }
 
     /**
@@ -161,7 +141,7 @@ var Router = (function () {
   }, {
     key: 'replace',
     value: function replace(canonicalPath) {
-      this.__dispatch(canonicalPath, true);
+      this.__dispatch(canonicalPath, 'replace');
     }
   }, {
     key: 'reset',
@@ -184,16 +164,23 @@ var Router = (function () {
     value: function __runHandlers(handlers, ctx, callback) {
       var _this2 = this;
 
-      var len = handlers.length;
       var i = 0;
 
       var next = function next() {
-        if (_this2.__dispatchId !== ctx.dispatchId || i > len) {
+        if (_this2.__dispatchId !== ctx.dispatchId) {
           return;
         }
-        var fn = handlers[i] || function () {};
+        var fn = handlers[i];
         i++;
-        fn(ctx, next);
+        // capture i in closure to not fuck
+        var j = i;
+
+        if (fn) {
+          fn(ctx, next);
+          if (callback && j === handlers.length && _this2.__dispatchId === ctx.dispatchId) {
+            callback();
+          }
+        }
       };
 
       next();
@@ -205,9 +192,15 @@ var Router = (function () {
      */
   }, {
     key: '__dispatch',
-    value: function __dispatch(canonicalPath, replace) {
+    value: function __dispatch(canonicalPath) {
+      var _this3 = this;
+
+      var mode = arguments.length <= 1 || arguments[1] === undefined ? 'push' : arguments[1];
+
       this.__dispatchId++;
-      this.__startTime = _fns2['default'].getNow();
+      if (mode !== 'replace') {
+        this.__startTime = _fns2['default'].getNow();
+      }
 
       var title = _DocumentEnv2['default'].getTitle();
       var path = _fns2['default'].extractPath(this.opts.base, canonicalPath);
@@ -220,11 +213,33 @@ var Router = (function () {
       var ctx = new _Context2['default']({ canonicalPath: canonicalPath, path: path, title: title, params: params, dispatchId: this.__dispatchId });
 
       if (route) {
-        replace ? _HistoryEnv2['default'].replaceState.apply(null, ctx.getHistoryArgs()) : _HistoryEnv2['default'].pushState.apply(null, ctx.getHistoryArgs());
-        this.__fromPath = this.__currentCanonicalPath;
+        if (mode === 'replace') {
+          _HistoryEnv2['default'].replaceState.apply(null, ctx.getHistoryArgs());
+        } else if (mode === 'push') {
+          _HistoryEnv2['default'].pushState.apply(null, ctx.getHistoryArgs());
+        }
+
         this.__currentCanonicalPath = canonicalPath;
 
-        this.__runHandlers(route.handlers, ctx);
+        this.__runHandlers(route.handlers, ctx, function () {
+          var startTime = _this3.__startTime;
+          var endTime = _fns2['default'].getNow();
+          var duration = endTime - startTime;
+          var fromPath = _this3.__fromPath || 'PAGE LOAD';
+          var toPath = canonicalPath;
+
+          if (_this3.onRouteComplete) {
+            _this3.onRouteComplete({
+              fromPath: fromPath,
+              toPath: toPath,
+              duration: duration,
+              startTime: startTime,
+              endTime: endTime
+            });
+          }
+
+          _this3.__fromPath = canonicalPath;
+        });
       } else {
         this.catchall();
       }
@@ -233,7 +248,7 @@ var Router = (function () {
     key: '__onpopstate',
     value: function __onpopstate(e) {
       if (e.state) {
-        this.replace(e.state.path);
+        this.__dispatch(e.state.path, 'pop');
       }
     }
   }]);
