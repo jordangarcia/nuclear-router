@@ -45,10 +45,6 @@ describe('Router', () => {
       onRouteCompleteSpy = sinon.spy()
 
       router = new Router({
-        onRouteStart(ctx, next) {
-          onRouteStartSpy(ctx)
-          next()
-        },
         onRouteComplete(ctx, next) {
           onRouteCompleteSpy(ctx)
         },
@@ -170,13 +166,6 @@ describe('Router', () => {
       }, 0);
     })
 
-    it('should call onRouteStart at the beginning of each route', () => {
-      router.go('/foo')
-
-      sinon.assert.calledOnce(onRouteStartSpy)
-      sinon.assert.callOrder(onRouteStartSpy, spy1, spy2)
-    })
-
     it('should call onRouteComplete at the end of each route', () => {
       let getNowStub = sinon.stub(fns, 'getNow')
       getNowStub.onCall(0).returns(0)
@@ -186,7 +175,7 @@ describe('Router', () => {
       router.go('/foo')
 
       sinon.assert.calledOnce(onRouteCompleteSpy)
-      sinon.assert.callOrder(onRouteStartSpy, spy1, spy2, onRouteCompleteSpy)
+      sinon.assert.callOrder(spy1, spy2, onRouteCompleteSpy)
       var args = onRouteCompleteSpy.firstCall.args[0]
       expect(args.fromPath).toBe('PAGE LOAD')
       expect(args.toPath).toBe('/foo')
@@ -194,7 +183,7 @@ describe('Router', () => {
 
       router.go('/bar/1/baz/2')
       sinon.assert.calledTwice(onRouteCompleteSpy)
-      sinon.assert.callOrder(onRouteStartSpy, spy1, spy2, onRouteCompleteSpy)
+      sinon.assert.callOrder(spy1, spy2, onRouteCompleteSpy)
       var args = onRouteCompleteSpy.secondCall.args[0]
       expect(args.fromPath).toBe('/foo')
       expect(args.toPath).toBe('/bar/1/baz/2')
