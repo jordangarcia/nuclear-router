@@ -25,13 +25,20 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
-      'test/**/*.js': ['babel', 'webpack']
+      'test/***.js': ['babel', 'webpack']
     },
 
     webpack: {
       module: {
         loaders: [
-          { test: /\.js$/, exclude: ['node_modules'], loader: 'babel-loader' },
+          {
+            test: /\.js$/,
+            exclude: ['node_modules'],
+            loader: 'babel-loader',
+            query: {
+              presets: ['es2015'],
+            }
+          },
         ]
       },
       devtool: 'inline-source-map',
