@@ -18,7 +18,7 @@ function navigate(location) {
   window.location = location;
 }
 
-exports["default"] = {
+exports.default = {
   navigate: navigate,
   addEventListener: addEventListener,
   removeEventListener: removeEventListener

@@ -1,12 +1,12 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 /**
  * @param {String} path
  * @return {String}
  */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
 function extractQueryString(path) {
   var i = path.indexOf('?');
   var isFound = i > -1;
@@ -101,7 +101,7 @@ function getNow() {
   return Date.now();
 }
 
-exports['default'] = {
+exports.default = {
   extractQueryString: extractQueryString,
   extractQueryParams: extractQueryParams,
   extractPath: extractPath,
