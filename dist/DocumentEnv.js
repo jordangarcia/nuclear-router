@@ -7,7 +7,7 @@ function getTitle() {
   return document.title;
 }
 
-exports["default"] = {
+exports.default = {
   getTitle: getTitle
 };
 module.exports = exports["default"];

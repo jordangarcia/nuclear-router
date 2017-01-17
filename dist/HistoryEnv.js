@@ -11,7 +11,7 @@ function replaceState() {
   return window.history.replaceState.apply(window.history, arguments);
 }
 
-exports["default"] = {
+exports.default = {
   replaceState: replaceState,
   pushState: pushState
 };
