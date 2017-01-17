@@ -226,7 +226,11 @@ var Router = function () {
         this.__currentCanonicalPath = canonicalPath;
 
         if (this.onRouteStart && mode !== 'replace') {
-          this.onRouteStart();
+          this.onRouteStart({
+            fromPath: this.__fromPath || 'PAGE LOAD',
+            startTime: this.__startTime,
+            context: ctx
+          });
         }
 
         this.__runHandlers(route.handlers, ctx, function () {
