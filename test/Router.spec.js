@@ -207,20 +207,41 @@ describe('Router', () => {
       expect(args.fromPath).toBe('/foo')
       expect(args.toPath).toBe('/bar/1/baz/2')
       expect(args.duration).toBe(9)
+
+      fns.getNow.restore()
     })
 
-    it('should call onRouteStart at the start of each route', () => {
-      router.go('/foo')
-      sinon.assert.calledOnce(onRouteStartSpy)
-      sinon.assert.callOrder(onRouteStartSpy, spy1, spy2)
-    })
+    describe('onRouteStart', () => {
+      beforeEach(() => {
+        sinon.stub(fns, 'getNow').returns(123)
+      });
 
-    it('should call onRouteStart only once for a route with a redirect', () => {
-      router.go('/redirect')
-      sinon.assert.calledOnce(onRouteStartSpy)
-      sinon.assert.calledOnce(redirectSpy1)
-      sinon.assert.notCalled(redirectSpy2)
-      sinon.assert.callOrder(onRouteStartSpy, redirectSpy1, spy1, spy2)
+      afterEach(() => {
+        fns.getNow.restore()
+      });
+
+      it('should call onRouteStart at the start of each route', () => {
+        router.go('/foo')
+        sinon.assert.calledOnce(onRouteStartSpy)
+        var options = onRouteStartSpy.firstCall.args[0]
+        expect(options.fromPath).toBe('PAGE LOAD')
+        expect(options.startTime).toBe(123)
+        expect(options.context.title).toBe(pageTitle)
+        expect(options.context.params).toEqual({})
+        expect(options.context.canonicalPath).toBe('/foo')
+        expect(options.context.path).toBe('/foo')
+        sinon.assert.callOrder(onRouteStartSpy, spy1, spy2)
+      })
+
+      it('should call onRouteStart only once for a route with a redirect', () => {
+        router.go('/redirect')
+        sinon.assert.calledOnce(onRouteStartSpy)
+        var options = onRouteStartSpy.firstCall.args[0]
+        expect(options.fromPath).toBe('PAGE LOAD')
+        sinon.assert.calledOnce(redirectSpy1)
+        sinon.assert.notCalled(redirectSpy2)
+        sinon.assert.callOrder(onRouteStartSpy, redirectSpy1, spy1, spy2)
+      })
     })
   })
 })
