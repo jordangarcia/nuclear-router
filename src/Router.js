@@ -35,6 +35,7 @@ export default class Router {
 
     this.setInitialState();
 
+    this.onRouteStart = this.opts.onRouteStart;
     this.onRouteComplete = this.opts.onRouteComplete
 
     WindowEnv.addEventListener('popstate', this.__onpopstate.bind(this))
@@ -137,7 +138,7 @@ export default class Router {
 
   /**
    * @param {String} canonicalPath
-   * @param {Boolean} replace use replaceState instead of pushState
+   * @param {String} mode One of 'pop', 'push', 'replace'
    */
   __dispatch(canonicalPath, mode = 'push') {
     this.__dispatchId++;
@@ -159,6 +160,14 @@ export default class Router {
       }
 
       this.__currentCanonicalPath = canonicalPath
+
+      if (this.onRouteStart && mode !== 'replace') {
+        this.onRouteStart({
+          fromPath: this.__fromPath || 'PAGE LOAD',
+          startTime: this.__startTime,
+          context: ctx,
+        });
+      }
 
       this.__runHandlers(route.handlers, ctx, () => {
         const startTime = this.__startTime;

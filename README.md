@@ -32,7 +32,6 @@ Instatiates a new Router
 
 ## TODO
 
-- Add `opts.onRouteStart` and `opts.onRouteComplete` to do things like performance benchmarking
 - Deprecate the `hashbang` use cases - we dont need this and it adds complexity
 - Deprecate the `basepath` option and just assume the basepath is `/`
 - Add no-op functionality to `next()` calls that happen async after `Router.go` is called again
