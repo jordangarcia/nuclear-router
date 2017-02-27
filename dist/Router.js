@@ -226,7 +226,9 @@ var Router = function () {
         this.__currentCanonicalPath = canonicalPath;
 
         if (this.onRouteStart && mode !== 'replace') {
+          var routeMetadata = route.metadata || {};
           this.onRouteStart({
+            routeMetadata: routeMetadata,
             fromPath: this.__fromPath || 'PAGE LOAD',
             startTime: this.__startTime,
             context: ctx
