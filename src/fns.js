@@ -1,27 +1,3 @@
-
-/**
- * @param {RouterHandler[]} handlers
- * @param {Context} ctx
- */
-function runHandlers(handlers, ctx, callback) {
-  let len = handlers.length
-  let i = 0;
-
-  function next() {
-    let fn = handlers[i]
-    if (i < len) {
-      let nextFn = (i < len - 1) ? next : () => {}
-      i++
-      fn(ctx, nextFn)
-    } else {
-      callback()
-    }
-  }
-
-  next()
-}
-
-
 /**
  * @param {String} path
  * @return {String}
@@ -38,8 +14,18 @@ function extractQueryString(path) {
  * @return {Object<String, String[]|String>}
  */
 function extractQueryParams(path) {
-  // TODO
+  let i = path.indexOf('?');
+  let params = {};
+  if (i === -1) {
+    return params;
+  }
 
+  path.slice(i + 1).split('&').forEach((queryString) => {
+    let query = queryString.split('=');
+    params[query[0]] = query[1];
+  })
+
+  return params;
 }
 
 /**
@@ -81,6 +67,7 @@ function matchRoute(routes, path) {
       }
 
       result = { route, params }
+      break
     }
   }
 
@@ -102,10 +89,17 @@ function decodeURLEncodedURIComponent(val) {
   return decodeURIComponent(val.replace(/\+/g, ' '))
 }
 
+function getNow() {
+  if (window.performance && window.performance.now) {
+    return window.performance.now();
+  }
+  return Date.now();
+}
+
 export default {
-  runHandlers,
   extractQueryString,
   extractQueryParams,
   extractPath,
   matchRoute,
+  getNow,
 }

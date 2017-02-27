@@ -7,19 +7,18 @@ export default class Context {
    * @param {String} opts.canonicalPath
    * @param {String} opts.title
    * @param {Object} opts.params
-   * @param {Boolean?} opts.useHashbang
+   * @param {Number} opts.dispatchId
    */
-  constructor({ path, canonicalPath, title, params, useHashbang }) {
-    // hashbang currently isnt supported
-    this.useHashbang = !!useHashbang
+  constructor({ path, canonicalPath, title, params, dispatchId}) {
     this.path = path
     this.canonicalPath = canonicalPath
     this.title = title
     this.params = params
+    this.dispatchId = dispatchId
 
     // computeds
-    this.queryString = fns.extractQueryString(path)
-    this.queryParams = fns.extractQueryParams(path)
+    this.queryString = fns.extractQueryString(canonicalPath)
+    this.queryParams = fns.extractQueryParams(canonicalPath)
   }
 
   /**
@@ -28,11 +27,9 @@ export default class Context {
    */
   getHistoryArgs() {
     let state = {
-      canonicalPath: this.canonicalPath,
+      path: this.canonicalPath,
     }
-    let url = (this.useHashbang && this.path !== '/')
-      ? '#!' + this.path
-      : this.canonicalPath
+    let url = this.canonicalPath
 
     return [
       state,
