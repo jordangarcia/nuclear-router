@@ -69,6 +69,9 @@ describe('Router', () => {
       router.registerRoutes([
         {
           match: '/foo',
+          metadata: {
+            bar: 'baz',
+          },
           handle: [
             (ctx, next) => {
               spy1(ctx)
@@ -226,6 +229,7 @@ describe('Router', () => {
         var options = onRouteStartSpy.firstCall.args[0]
         expect(options.fromPath).toBe('PAGE LOAD')
         expect(options.startTime).toBe(123)
+        expect(options.routeMetadata).toEqual({ bar: 'baz' })
         expect(options.context.title).toBe(pageTitle)
         expect(options.context.params).toEqual({})
         expect(options.context.canonicalPath).toBe('/foo')

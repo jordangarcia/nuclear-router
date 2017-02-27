@@ -162,7 +162,9 @@ export default class Router {
       this.__currentCanonicalPath = canonicalPath
 
       if (this.onRouteStart && mode !== 'replace') {
+        const routeMetadata = route.metadata || {};
         this.onRouteStart({
+          routeMetadata,
           fromPath: this.__fromPath || 'PAGE LOAD',
           startTime: this.__startTime,
           context: ctx,
