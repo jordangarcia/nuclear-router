@@ -14,13 +14,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Route = function Route(_ref) {
   var match = _ref.match,
-      handle = _ref.handle;
+      handle = _ref.handle,
+      metadata = _ref.metadata;
 
   _classCallCheck(this, Route);
 
   this.match = match === '*' ? '(.*)' : match;
   this.handlers = handle;
   this.keys = [];
+  this.metadata = metadata;
 
   this.matchRegexp = (0, _pathToRegexp2.default)(this.match, this.keys);
 };
