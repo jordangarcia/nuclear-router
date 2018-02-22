@@ -168,21 +168,37 @@ var Router = function () {
     value: function __runHandlers(handlers, ctx, callback) {
       var _this2 = this;
 
-      var i = 0;
+      var index = 0;
 
       var next = function next() {
         if (_this2.__dispatchId !== ctx.dispatchId) {
           return;
         }
-        var fn = handlers[i];
-        i++;
-        // capture i in closure to not fuck
-        var j = i;
+        var handlerFnOrArray = handlers[index];
+        index++;
+        // capture handler index in closure since index could be modified by another thread
+        var handlerIndex = index;
 
-        if (fn) {
-          fn(ctx, next);
-          if (callback && j === handlers.length && _this2.__dispatchId === ctx.dispatchId) {
-            callback();
+        if (handlerFnOrArray) {
+          if (Array.isArray(handlerFnOrArray)) {
+            var parallelHandlersComplete = 0;
+
+            // for parallel handlers we use a custom next callback that tracks completion of all handlers in the group
+            var parallelNext = function parallelNext() {
+              parallelHandlersComplete++;
+              if (parallelHandlersComplete === handlerFnOrArray.length) {
+                next(); // all grouped parallel handlers complete, so invoke the next top-level handler or handler array
+              }
+            };
+            // execute all handlers in parallel group
+            handlerFnOrArray.map(function (handlerFn) {
+              return handlerFn(ctx, parallelNext);
+            });
+          } else {
+            handlerFnOrArray(ctx, next);
+            if (callback && handlerIndex === handlers.length && _this2.__dispatchId === ctx.dispatchId) {
+              callback();
+            }
           }
         }
       };
