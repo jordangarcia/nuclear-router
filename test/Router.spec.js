@@ -260,6 +260,7 @@ describe('Router', () => {
       expect(args.fromPath).toBe('PAGE LOAD')
       expect(args.toPath).toBe('/foo')
       expect(args.duration).toBe(3)
+      expect(args.routeMetadata).toEqual({ bar: 'baz'})
 
       router.go('/bar/1/baz/2')
       sinon.assert.calledTwice(onRouteCompleteSpy)
@@ -268,6 +269,7 @@ describe('Router', () => {
       expect(args.fromPath).toBe('/foo')
       expect(args.toPath).toBe('/bar/1/baz/2')
       expect(args.duration).toBe(9)
+      expect(args.routeMetadata).toEqual({})
 
       fns.getNow.restore()
     })

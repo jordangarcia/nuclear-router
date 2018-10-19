@@ -174,9 +174,9 @@ export default class Router {
       }
 
       this.__currentCanonicalPath = canonicalPath
+      const routeMetadata = route.metadata || {};
 
       if (this.onRouteStart && mode !== 'replace') {
-        const routeMetadata = route.metadata || {};
         this.onRouteStart({
           routeMetadata,
           fromPath: this.__fromPath || 'PAGE LOAD',
@@ -199,6 +199,7 @@ export default class Router {
             duration,
             startTime,
             endTime,
+            routeMetadata,
           });
         }
 
