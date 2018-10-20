@@ -1,6 +1,6 @@
 {
   "name": "nuclear-router",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "NuclearJS Router",
   "main": "dist/main.js",
   "scripts": {
