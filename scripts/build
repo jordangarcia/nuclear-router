@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-rm -rf dist
-`npm bin`/babel src --out-dir dist --presets=es2015 --plugins=add-module-exports
