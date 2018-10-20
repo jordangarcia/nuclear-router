@@ -1,6 +1,6 @@
 {
   "name": "@optimizely/nuclear-router",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "NuclearJS Router",
   "main": "dist/main.js",
   "scripts": {
