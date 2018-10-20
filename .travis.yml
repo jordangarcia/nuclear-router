@@ -15,11 +15,10 @@ before_install:
 before_deploy:
 - yarn build
 deploy:
-  matrix:
-  - provider: npm
-    email: engineering-npm@optimizely.com
-    api_key:
-      secure: mpscbIWMGKW+eJFZpJyMJBOMqkoYp8I5QNP6QG8oaath/FJc/A/L7ko14lp0DOso8/4ucGO967SUJe7Uo4u9daPdfF4pQn1fT0Du467rVrzCjnJKlEVe8tktyoB6blcbejeELhqZlTMVWjVapBpXflB05wlMgkPZ0Yxkj7jH8z7JV+UhwGJ1q8TTj2rU4YbKRK/m8xR5gGdEKDyVCjDNCta8UYSKROrELc1nsEEqJalbk+bBvSMFnHttzGE49uUG3W7wkvOOrRX5Zuwqdi3i0RThAZF3Zwb+CBGYucSkcXF6A2ayeJGFvJrmdt8gze/X/ECYKKM/Gp2Rmm5Ys6q7vWldawpdFpLB22NxH10i3K5xJ6V5v5GgS2cy77L/O9Y/BSkzfd9uSJ5HnHGt2YFpD8pPmLX9U0VaGBQImzCbelwi/CwLISCf7s9Zd/fiOf41peQYaSOzC9SKLIQzDCnTGTC09NPd76FI7Po6LOyND50yvlpZWn2KVt4/ITzR0P+JQCIqsltQyEmNng4kf5b7JSvEDjOgYDc+M5lhpye5Aqc8MaBFmDJghwZV1bsYhLtbFrLRzoAyknTaFRMncNGM6fceEq5tYxttMApS1ErexinyTrGdF0ryOjxgxlgPWf6orvVj+rZrtGX8DWcy3fsBY2c/wYzTu+3qYHwYWmAeEL8=
-    on:
-      tags: true
-    skip_cleanup: true
+  provider: npm
+  email: engineering-npm@optimizely.com
+  api_key:
+    secure: mpscbIWMGKW+eJFZpJyMJBOMqkoYp8I5QNP6QG8oaath/FJc/A/L7ko14lp0DOso8/4ucGO967SUJe7Uo4u9daPdfF4pQn1fT0Du467rVrzCjnJKlEVe8tktyoB6blcbejeELhqZlTMVWjVapBpXflB05wlMgkPZ0Yxkj7jH8z7JV+UhwGJ1q8TTj2rU4YbKRK/m8xR5gGdEKDyVCjDNCta8UYSKROrELc1nsEEqJalbk+bBvSMFnHttzGE49uUG3W7wkvOOrRX5Zuwqdi3i0RThAZF3Zwb+CBGYucSkcXF6A2ayeJGFvJrmdt8gze/X/ECYKKM/Gp2Rmm5Ys6q7vWldawpdFpLB22NxH10i3K5xJ6V5v5GgS2cy77L/O9Y/BSkzfd9uSJ5HnHGt2YFpD8pPmLX9U0VaGBQImzCbelwi/CwLISCf7s9Zd/fiOf41peQYaSOzC9SKLIQzDCnTGTC09NPd76FI7Po6LOyND50yvlpZWn2KVt4/ITzR0P+JQCIqsltQyEmNng4kf5b7JSvEDjOgYDc+M5lhpye5Aqc8MaBFmDJghwZV1bsYhLtbFrLRzoAyknTaFRMncNGM6fceEq5tYxttMApS1ErexinyTrGdF0ryOjxgxlgPWf6orvVj+rZrtGX8DWcy3fsBY2c/wYzTu+3qYHwYWmAeEL8=
+  on:
+    tags: true
+  skip_cleanup: true
