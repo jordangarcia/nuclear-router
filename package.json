@@ -6,7 +6,7 @@
   "scripts": {
     "build": "./scripts/build",
     "test": "./scripts/test",
-    "release": "release-it"
+    "release": "release-it --no-npm.publish"
   },
   "repository": {
     "type": "git",
