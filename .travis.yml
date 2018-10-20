@@ -15,12 +15,11 @@ before_install:
 before_deploy:
 - yarn build
 deploy:
-  matrix:
-  - provider: npm
-    skip_cleanup: true
-    email: engineering-npm@optimizely.com
-    api_key:
-      secure: kxLF3XRL0X7GMA1VLUespAybzCTZETWM4QZIYMcTDBmrETG93w51SiGBXhaq9IxSJRYOGpO2s4id1oQXrxOoBsFFhCO0jJuwIY5E3Z35b0QNkwpYngbKwFhcZEpPc+5mUnuPHPMLyYK4KtDGHd43X5hITFYTBXjB10EsB+aiL31I4JMpgOoZ8YwRWfbTQpTw5KpGC8S6JM5LHORC3xgQXnEaq1VLvfa1YyIDQXQsO87L4CWsieOXEgw80NCKKuF0VcA4jjE+NdfrfH2t3h5Oq14YAoSo2fIOttcToIvkBu31MCDn7O/vRoeawyQSgbgRDI6Jj9J/mOzroE9xwap3kbtRWiEnOMHew/4tjBiVfYZwoLlKDJDPmpruqJxU6bMRrQa+X8sUgVprvWANvVKtfgvSs6fhjPxj2HSk7D4nL5bWKiXxtJ7bOy987VPsM+LP2XR2lqe1fW9AAsCN20oeuWm+zu59mBUoKxYbKcLZoswfFl8O5GNk9avHs7wLDnZYcWtwFw/gTORSRsB+uPQQLdkKdWKhHIxhlKD7Q/FcLXPBIyFr/JbZf910L4S8s5TJXqH0yjU5ABgiqgZDFA2p13YwP3Qo19/Q3QwvJCbHIZYt6u9h2c+4dxF/AIgFVsyhGAY6m5xeak9cJzF/GW1p5QlCHz063gsPpM3KY/4FPzc=
-    on:
-      tags: true
-      repo: optimizely/nuclear-router
+- provider: npm
+  skip_cleanup: true
+  email: engineering-npm@optimizely.com
+  api_key:
+    secure: kxLF3XRL0X7GMA1VLUespAybzCTZETWM4QZIYMcTDBmrETG93w51SiGBXhaq9IxSJRYOGpO2s4id1oQXrxOoBsFFhCO0jJuwIY5E3Z35b0QNkwpYngbKwFhcZEpPc+5mUnuPHPMLyYK4KtDGHd43X5hITFYTBXjB10EsB+aiL31I4JMpgOoZ8YwRWfbTQpTw5KpGC8S6JM5LHORC3xgQXnEaq1VLvfa1YyIDQXQsO87L4CWsieOXEgw80NCKKuF0VcA4jjE+NdfrfH2t3h5Oq14YAoSo2fIOttcToIvkBu31MCDn7O/vRoeawyQSgbgRDI6Jj9J/mOzroE9xwap3kbtRWiEnOMHew/4tjBiVfYZwoLlKDJDPmpruqJxU6bMRrQa+X8sUgVprvWANvVKtfgvSs6fhjPxj2HSk7D4nL5bWKiXxtJ7bOy987VPsM+LP2XR2lqe1fW9AAsCN20oeuWm+zu59mBUoKxYbKcLZoswfFl8O5GNk9avHs7wLDnZYcWtwFw/gTORSRsB+uPQQLdkKdWKhHIxhlKD7Q/FcLXPBIyFr/JbZf910L4S8s5TJXqH0yjU5ABgiqgZDFA2p13YwP3Qo19/Q3QwvJCbHIZYt6u9h2c+4dxF/AIgFVsyhGAY6m5xeak9cJzF/GW1p5QlCHz063gsPpM3KY/4FPzc=
+  on:
+    tags: true
+    repo: optimizely/nuclear-router
