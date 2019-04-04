@@ -571,6 +571,41 @@ describe('Router', () => {
         })
     })
 
+    describe('when handling a popstate event', () => {
+      let dispatchStub;
+      let popstateSpy;
+
+      beforeEach(() => {
+        dispatchStub = sinon.stub(router, '__dispatch');
+        popstateSpy = sinon.spy(router, '__onpopstate');
+      });
+
+      it('should not dispatch a route if the popstate listener is disabled', () => {
+        // Wrap popstate emitter to disable the popstate listener
+        router.executeWithoutPopstateListener(() => {
+          // Simulate a popstate event
+          router.__onpopstate({ state: {} });
+        });
+        
+        // Expect that the popstate handler is called
+        sinon.assert.calledOnce(popstateSpy);
+
+        // Expect that the popstate listener does not trigger a dispatch
+        sinon.assert.notCalled(dispatchStub);
+      });
+
+      it('should dispatch a route if the popstate listener is enabled', () => {
+        // Simulate a popstate event w/o disabling popstate listener
+        router.__onpopstate({ state: {} });
+        
+        // Expect that the popstate handler is called
+        sinon.assert.calledOnce(popstateSpy);
+
+        // Expect that the popstate listener does trigger a dispatch
+        sinon.assert.calledOnce(dispatchStub);
+      });
+    });
+
     describe('onRouteStart', () => {
       beforeEach(() => {
         sinon.stub(fns, 'getNow').returns(123)

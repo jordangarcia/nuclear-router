@@ -48,6 +48,7 @@ export default class Router {
     this.__catchallPath = null;
     this.__dispatchId = 0;
     this.__startTime = null;
+    this.__shouldHandlePopstateEvents = true;
   }
 
   /**
@@ -106,6 +107,15 @@ export default class Router {
 
   catchall() {
     WindowEnv.navigate(this.__catchallPath)
+  }
+
+  /**
+   * @param {function} fn - Function to execute while popstate listener is disabled
+   */
+  executeWithoutPopstateListener(fn) {
+    this.__shouldHandlePopstateEvents = false;
+    fn();
+    this.__shouldHandlePopstateEvents = true;
   }
 
   /**
@@ -227,7 +237,7 @@ export default class Router {
   }
 
   __onpopstate(e) {
-    if (e.state) {
+    if (e.state && this.__shouldHandlePopstateEvents) {
       this.__dispatch(e.state.path, 'pop');
     }
   }
