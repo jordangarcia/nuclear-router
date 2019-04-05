@@ -582,16 +582,18 @@ describe('Router', () => {
 
       it('should not dispatch a route if the popstate listener is disabled', () => {
         // Wrap popstate emitter to disable the popstate listener
-        router.executeWithoutPopstateListener(() => {
+        return router.executeWithoutPopstateListener(() => {
           // Simulate a popstate event
           router.__onpopstate({ state: {} });
-        });
-        
-        // Expect that the popstate handler is called
-        sinon.assert.calledOnce(popstateSpy);
+          return Promise.resolve();
+        })
+          .then(() => {
+            // Expect that the popstate handler is called
+            sinon.assert.calledOnce(popstateSpy);
 
-        // Expect that the popstate listener does not trigger a dispatch
-        sinon.assert.notCalled(dispatchStub);
+            // Expect that the popstate listener does not trigger a dispatch
+            sinon.assert.notCalled(dispatchStub);
+          });
       });
 
       it('should dispatch a route if the popstate listener is enabled', () => {

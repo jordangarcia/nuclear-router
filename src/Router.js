@@ -110,12 +110,19 @@ export default class Router {
   }
 
   /**
-   * @param {function} fn - Function to execute while popstate listener is disabled
+   * @param {function} fn - Async function to execute w/o popstate listener
    */
   executeWithoutPopstateListener(fn) {
     this.__shouldHandlePopstateEvents = false;
-    fn();
-    this.__shouldHandlePopstateEvents = true;
+
+    // Execute the function, then re-enable the popstate listener
+    return fn().then((result) => {
+      this.__shouldHandlePopstateEvents = true;
+      return Promise.resolve(result);
+    }, (error) => {
+      this.__shouldHandlePopstateEvents = true;
+      return Promise.reject(error);
+    });
   }
 
   /**
