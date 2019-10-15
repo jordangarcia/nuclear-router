@@ -553,6 +553,10 @@ describe('Router', () => {
           expect(args.toPath).toBe('/foo')
           expect(args.duration).toBe(3)
           expect(args.routeMetadata).toEqual({bar: 'baz'})
+          expect(args.context.title).toBe(pageTitle)
+          expect(args.context.params).toEqual({})
+          expect(args.context.canonicalPath).toBe('/foo')
+          expect(args.context.path).toBe('/foo')
 
           router.go('/bar/1/baz/2')
         })
@@ -565,6 +569,10 @@ describe('Router', () => {
           expect(args.toPath).toBe('/bar/1/baz/2')
           expect(args.duration).toBe(9)
           expect(args.routeMetadata).toEqual({})
+          expect(args.context.title).toBe(pageTitle)
+          expect(args.context.params).toEqual({ id: '1', baz_id: '2' })
+          expect(args.context.canonicalPath).toBe('/bar/1/baz/2')
+          expect(args.context.path).toBe('/bar/1/baz/2')
         })
         .then(() => {
           fns.getNow.restore()
@@ -599,7 +607,7 @@ describe('Router', () => {
       it('should dispatch a route if the popstate listener is enabled', () => {
         // Simulate a popstate event w/o disabling popstate listener
         router.__onpopstate({ state: {} });
-        
+
         // Expect that the popstate handler is called
         sinon.assert.calledOnce(popstateSpy);
 

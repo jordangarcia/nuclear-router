@@ -174,6 +174,7 @@ export default class Router {
           startTime,
           endTime,
           routeMetadata,
+          context: ctx,
         });
       }
 
@@ -249,4 +250,3 @@ export default class Router {
     }
   }
 }
-
