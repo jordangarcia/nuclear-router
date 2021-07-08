@@ -1,0 +1,4 @@
+# @optimizely/nuclear-router CODEOWNERS file.
+
+# All frontend engineers should be able to review this.
+* @optimizely/frontend

@@ -13,13 +13,15 @@ Instatiates a new Router
 
 #### Router#registerRoutes( routes : Route[] ) : void
 
-#### Router#registerCatchallRoute( routes : Route[] ) : void
+#### Router#registerCatchallPath( path : String ) : void
 
 #### Router#getLocation() : String
 
-#### Router#redirect( location : String )
+#### Router#replace( location : String )
 
 #### Router#windowNavigate( location : String )
+
+#### Router#reset()
 
 ### Type: Route
 
@@ -30,7 +32,6 @@ Instatiates a new Router
 
 ## TODO
 
-- Add `opts.onRouteStart` and `opts.onRouteComplete` to do things like performance benchmarking
 - Deprecate the `hashbang` use cases - we dont need this and it adds complexity
 - Deprecate the `basepath` option and just assume the basepath is `/`
 - Add no-op functionality to `next()` calls that happen async after `Router.go` is called again

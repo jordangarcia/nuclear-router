@@ -25,13 +25,20 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
-      'test/**/*.js': ['webpack']
+      'test/***.js': ['babel', 'webpack']
     },
 
     webpack: {
       module: {
         loaders: [
-          { test: /\.js$/, exclude: ['node_modules'], loader: 'babel-loader' },
+          {
+            test: /\.js$/,
+            exclude: ['node_modules'],
+            loader: 'babel-loader',
+            query: {
+              presets: ['es2015'],
+            }
+          },
         ]
       },
       devtool: 'inline-source-map',
@@ -57,7 +64,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: false,
 
 
     // start these browsers
@@ -67,6 +74,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true
   })
 }

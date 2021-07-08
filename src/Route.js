@@ -1,10 +1,12 @@
 import pathToRegexp from 'path-to-regexp'
 
 export default class Route {
-  constructor({ match, handlers }) {
+  constructor({ match, handle, shouldHandle, metadata }) {
     this.match = (match === '*') ? '(.*)' : match;
-    this.handlers = handlers
+    this.shouldHandle = shouldHandle;
+    this.handlers = handle
     this.keys = []
+    this.metadata = metadata;
 
     this.matchRegexp = pathToRegexp(this.match, this.keys)
   }

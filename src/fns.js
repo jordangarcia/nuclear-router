@@ -1,26 +1,4 @@
-
-/**
- * @param {RouterHandler[]} handlers
- * @param {Context} ctx
- */
-function runHandlers(handlers, ctx, callback) {
-  let len = handlers.length
-  let i = 0;
-
-  function next() {
-    let fn = handlers[i]
-    if (i < len) {
-      let nextFn = (i < len - 1) ? next : () => {}
-      i++
-      fn(ctx, nextFn)
-    } else {
-      callback()
-    }
-  }
-
-  next()
-}
-
+import utils from './utils';
 
 /**
  * @param {String} path
@@ -38,8 +16,18 @@ function extractQueryString(path) {
  * @return {Object<String, String[]|String>}
  */
 function extractQueryParams(path) {
-  // TODO
+  let i = path.indexOf('?');
+  let params = {};
+  if (i === -1) {
+    return params;
+  }
 
+  path.slice(i + 1).split('&').forEach((queryString) => {
+    let query = queryString.split('=');
+    params[query[0]] = query[1];
+  })
+
+  return params;
 }
 
 /**
@@ -54,15 +42,16 @@ function extractPath(base, canonicalPath) {
 }
 
 /**
+ * Given a list of routes, return a list of all matches
+ * based on the route's match key.
+ * Ensure they are returned in the same order they appear
+ * in the original routes list.
  * @param {Route[]} routes
  * @param {String} path
- * @return {{ route: Route, params: Object }}
+ * @return {{ route: Route, params: Object }[]}
  */
 function matchRoute(routes, path) {
-  let result = {
-    params: {},
-    route: null,
-  }
+  const results = [];
 
   let decodedPath = decodeURIComponent(path)
   for (let i = 0; i < routes.length; i++) {
@@ -80,11 +69,32 @@ function matchRoute(routes, path) {
         }
       }
 
-      result = { route, params }
+      results.push({ route, params });
     }
   }
 
-  return result
+  return results
+}
+
+/**
+ * Given a list of matching routes, return a promise which resolves
+ * with the first route in the list that has indicated it should handle
+ * based on its shouldHandle key.
+ * @param {Object[]} routes
+ * @returns {Promise}
+ */
+function filterMatches(routes) {
+  return utils
+    .PromiseOrderedFirst(
+      routes.map(r => {
+        if (r.route.shouldHandle) {
+          return r.route.shouldHandle();
+        }
+        // The absence of route.shouldHandle is considered a match.
+        return Promise.resolve();
+      })
+    )
+    .then(({index}) => routes[index]);
 }
 
 /**
@@ -102,10 +112,18 @@ function decodeURLEncodedURIComponent(val) {
   return decodeURIComponent(val.replace(/\+/g, ' '))
 }
 
+function getNow() {
+  if (window.performance && window.performance.now) {
+    return window.performance.now();
+  }
+  return Date.now();
+}
+
 export default {
-  runHandlers,
   extractQueryString,
   extractQueryParams,
   extractPath,
+  filterMatches,
   matchRoute,
+  getNow,
 }
